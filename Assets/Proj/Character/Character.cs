@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Events;
 using UnityEngine;
 
 public class Character : MonoBehaviour
@@ -8,7 +9,11 @@ public class Character : MonoBehaviour
 	public RaycastWatcher raycastWatcher;
 	public Movement movement;
 
+	[HideInInspector]
 	public GameObject box;
+
+	public UnityEvent boxPutDown;
+
 	public bool HaveBox() => box != null;
 
 
@@ -16,29 +21,33 @@ public class Character : MonoBehaviour
 	{
 		if (Input.anyKeyDown)
 		{
-			movement.MovementKeyDown();
+			movement.Moving();
 
 			if (Input.GetKeyDown(KeyCode.E))
 			{
-				TakeKeyDown();
+				TakeBox();
 			}
 		}
 	}
 
-	private void TakeKeyDown()
+	private void TakeBox()
 	{
-		if (!raycastWatcher.IsTargetBox(cursor.transform.position, out var findedBox))
-			return;
-
 		if (HaveBox())
 		{
+			// to world
 			box.transform.SetParent(null, true);
 			box = null;
+
+			boxPutDown.Invoke();
 		}
 		else
 		{
-			box = findedBox;
-			findedBox.transform.SetParent(cursor.transform);
+			if (raycastWatcher.IsTargetBox(cursor.transform.position, out var findedBox))
+			{               
+				// to character
+				box = findedBox;
+				findedBox.transform.SetParent(cursor.transform);
+			}
 		}
 	}
 }

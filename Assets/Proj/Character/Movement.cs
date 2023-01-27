@@ -4,59 +4,88 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
+	public CharacterAnimation characterAnimation;
+
 	public Character character;
 	public Cursor cursor;
 	public RaycastWatcher raycastWatcher;
 
-	private Vector3 firstDirection = Vector3.right;
+	public float speed = 2f;
 
-	public void MovementKeyDown()
+	private Vector3 firstSupposeDirection = Vector3.right;
+
+	private bool isMoving = false;
+
+	private bool IsBoxGrapping() => character.HaveBox();
+
+	private Vector3 GetInputDirection() => new Vector3(Input.GetAxisRaw("Horizontal"),Input.GetAxisRaw("Vertical"));
+
+	private bool IsTwoKeysDown(Vector3 InputAxisDirection) => InputAxisDirection.x != 0 && InputAxisDirection.y != 0;
+
+	private bool IsSameDirection(Vector3 lastDirect, Vector3 nextDirect) => nextDirect.Equals(lastDirect);
+
+	public void Moving()
 	{
-		Vector3 direction = new Vector3(
-			Input.GetAxisRaw("Horizontal"),
-			Input.GetAxisRaw("Vertical")
-		);
-
-		if (IsTwoKeysDown(direction))
-		{
+		if (isMoving)
 			return;
-		}
 
-		bool isSameDirection = IsSameDirection(firstDirection, direction);
-		int multipleSizeCharacter = IsBoxGrapping() && isSameDirection ? 2 : 1;
+		Vector3 inputDirection = GetInputDirection();
 
-		Vector3 newPositionAboutBox = direction * multipleSizeCharacter;
+		// если не WASD
+		if (inputDirection.magnitude == 0)
+			return;
 
-		bool isPositionObstacle = raycastWatcher.IsPositionObstacle(transform.position + newPositionAboutBox);
+		// не обрабатывать сразу два нажатия
+		if (IsTwoKeysDown(inputDirection))
+			return;
+
+		// нажато тоже направление
+		bool isSameDirection = IsSameDirection(firstSupposeDirection, inputDirection);
+
+		// если тащим коробку прямо -> проверить место за коробкой
+		int multipleCheckingDirection = IsBoxGrapping() && isSameDirection ? 2 : 1;
+
+		// учитывание проверки места с коробкой
+		bool isPositionObstacle = raycastWatcher.IsPositionObstacle(transform.position + inputDirection * multipleCheckingDirection);
+
 		bool isBoxGrapping = IsBoxGrapping();
 
-		if (!isPositionObstacle && IsSameDirection(firstDirection, direction))
+		// передвигаемся если нет препятствия и наж. то же направление
+		if (!isPositionObstacle && IsSameDirection(firstSupposeDirection, inputDirection))
 		{
-			transform.Translate(direction);
+			isMoving = true;
+			StartCoroutine(SmoothedMove(transform.position + inputDirection));
+
+			characterAnimation.SetAnimationDirect(inputDirection);
 		}
 		else
 		{
-			if (!isBoxGrapping || !isPositionObstacle)
-				firstDirection = direction;
+			characterAnimation.SetAnimationDirect(inputDirection);
+			characterAnimation.SetToIdle();
+
+			if (!isPositionObstacle || !isBoxGrapping)
+				firstSupposeDirection = inputDirection; // просто направление
 		}
-		if (!isBoxGrapping || !isPositionObstacle)
-			cursor.SetCursor(direction);
+		
+		// курсор перемещаем если нет припятствий или не тащим
+		if (!isPositionObstacle || !isBoxGrapping)
+			cursor.SetCursor(inputDirection);
 	}
 
-	private bool IsSameDirection(Vector3 firstDirect, Vector3 targetDirect)
+	private IEnumerator SmoothedMove(Vector3 endPosition)
 	{
-		return firstDirect.Equals(targetDirect);
-	}
+		Vector3 startPosition = transform.position;
 
-	private bool IsTwoKeysDown(Vector3 clickDirection)
-	{
-		return clickDirection.x != 0 && clickDirection.y != 0;
-	}
+		for (float timeElapsed = 0; timeElapsed < 1.0f; timeElapsed += Time.deltaTime * speed)
+		{
+			float lerpStep = timeElapsed / 1.0f;
+			transform.position = Vector3.Lerp(startPosition, endPosition, lerpStep);
+			yield return null;
+		}
 
+		transform.position = endPosition;
 
-
-	private bool IsBoxGrapping()
-	{
-		return character.HaveBox();
+		isMoving = false;
+		characterAnimation.SetToIdle();
 	}
 }
