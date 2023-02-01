@@ -5,18 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class RaycastWatcher : MonoBehaviour
+public static class RaycastWatcher
 {
-	public LayerMask targetBoxLayer;
-	public LayerMask obstacleLayers;
-
-	public bool IsTargetBox(Vector3 position, out GameObject box)
+	public static bool IsTargetBox(Vector3 position, LayerMask targetBoxLayer, out GameObject box)
 	{
 		box = Physics2D.Raycast(position, Vector3.zero, Mathf.Infinity, targetBoxLayer).collider?.gameObject;
 		return box;
 	}
 
-	public bool IsPositionObstacle(Vector3 position)
+	public static bool IsPositionObstacle(Vector3 position, LayerMask obstacleLayers)
 	{
 		return Physics2D.Raycast(position, Vector3.zero, Mathf.Infinity, obstacleLayers);
 	}

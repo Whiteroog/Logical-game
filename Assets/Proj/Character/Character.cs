@@ -6,33 +6,37 @@ using UnityEngine;
 public class Character : MonoBehaviour
 {
 	public Cursor cursor;
-	public RaycastWatcher raycastWatcher;
 	public Movement movement;
 
 	[HideInInspector]
 	public GameObject box;
 
 	public UnityEvent boxPutDown;
+	
+	public LayerMask targetBoxLayer;
 
-	public bool HaveBox() => box != null;
-
+	public bool IsDraggingBox() => box != null;
+	
+	private Vector3 GetInputDirection() => new Vector3(Input.GetAxisRaw("Horizontal"),Input.GetAxisRaw("Vertical"));
 
 	void Update()
 	{
 		if (Input.anyKeyDown)
 		{
-			movement.Moving();
+			movement.Moving(GetInputDirection(), out Vector3 cursorDirection, IsDraggingBox());
+
+			cursor.SetCursor(cursorDirection);
 
 			if (Input.GetKeyDown(KeyCode.E))
 			{
-				TakeBox();
+				ActionToBox();
 			}
 		}
 	}
 
-	private void TakeBox()
+	private void ActionToBox()
 	{
-		if (HaveBox())
+		if (IsDraggingBox())
 		{
 			// to world
 			box.transform.SetParent(null, true);
@@ -42,11 +46,11 @@ public class Character : MonoBehaviour
 		}
 		else
 		{
-			if (raycastWatcher.IsTargetBox(cursor.transform.position, out var findedBox))
+			if (RaycastWatcher.IsTargetBox(cursor.transform.position, targetBoxLayer, out var foundBox))
 			{               
 				// to character
-				box = findedBox;
-				findedBox.transform.SetParent(cursor.transform);
+				box = foundBox;
+				foundBox.transform.SetParent(cursor.transform);
 			}
 		}
 	}

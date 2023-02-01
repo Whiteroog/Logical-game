@@ -6,72 +6,67 @@ public class Movement : MonoBehaviour
 {
 	public CharacterAnimation characterAnimation;
 
-	public Character character;
-	public Cursor cursor;
-	public RaycastWatcher raycastWatcher;
-
 	public float speed = 2f;
+	public LayerMask obstacleLayers;
 
-	private Vector3 firstSupposeDirection = Vector3.right;
+	private Vector3 _lastInputDirection = Vector3.right;
 
-	private bool isMoving = false;
+	private bool _isPlayAnimationMoving = false;
 
-	private bool IsBoxGrapping() => character.HaveBox();
+	private bool IsTwoKeysDown(Vector3 inputAxisDirection) => inputAxisDirection.x != 0 && inputAxisDirection.y != 0;
 
-	private Vector3 GetInputDirection() => new Vector3(Input.GetAxisRaw("Horizontal"),Input.GetAxisRaw("Vertical"));
+	private bool IsSameDirection(Vector3 nextDirect) => nextDirect.Equals(_lastInputDirection);
 
-	private bool IsTwoKeysDown(Vector3 InputAxisDirection) => InputAxisDirection.x != 0 && InputAxisDirection.y != 0;
-
-	private bool IsSameDirection(Vector3 lastDirect, Vector3 nextDirect) => nextDirect.Equals(lastDirect);
-
-	public void Moving()
+	public void Moving(Vector3 inputDirection, out Vector3 cursorDirection, bool isDraggingBox = false)
 	{
-		if (isMoving)
+		cursorDirection = _lastInputDirection;
+		
+		// animation is playing
+		if (_isPlayAnimationMoving)
 			return;
 
-		Vector3 inputDirection = GetInputDirection();
-
-		// если не WASD
+		// пїЅпїЅпїЅпїЅ пїЅпїЅ WASD
 		if (inputDirection.magnitude == 0)
 			return;
 
-		// не обрабатывать сразу два нажатия
+		// пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		if (IsTwoKeysDown(inputDirection))
 			return;
 
-		// нажато тоже направление
-		bool isSameDirection = IsSameDirection(firstSupposeDirection, inputDirection);
+		// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+		bool isSameDirection = IsSameDirection(inputDirection);
 
-		// если тащим коробку прямо -> проверить место за коробкой
-		int multipleCheckingDirection = IsBoxGrapping() && isSameDirection ? 2 : 1;
+		// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ -> пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+		int multipleCheckingDirection = isDraggingBox && isSameDirection ? 2 : 1;
 
-		// учитывание проверки места с коробкой
-		bool isPositionObstacle = raycastWatcher.IsPositionObstacle(transform.position + inputDirection * multipleCheckingDirection);
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+		bool isPositionObstacle = RaycastWatcher.IsPositionObstacle(transform.position + inputDirection * multipleCheckingDirection, obstacleLayers);
 
-		bool isBoxGrapping = IsBoxGrapping();
-
-		// передвигаемся если нет препятствия и наж. то же направление
-		if (!isPositionObstacle && IsSameDirection(firstSupposeDirection, inputDirection))
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ. пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+		if (!isPositionObstacle && IsSameDirection(inputDirection))
 		{
-			isMoving = true;
-			StartCoroutine(SmoothedMove(transform.position + inputDirection));
+			MoveToDirection(inputDirection);
 
-			characterAnimation.SetAnimationDirect(inputDirection);
+			characterAnimation.SetDirectAnimation(inputDirection);
 		}
 		else
 		{
-			characterAnimation.SetAnimationDirect(inputDirection);
-			characterAnimation.SetToIdle();
+			characterAnimation.SetDirectAnimation(inputDirection);
+			characterAnimation.SetIdleAnimation();
 
-			if (!isPositionObstacle || !isBoxGrapping)
-				firstSupposeDirection = inputDirection; // просто направление
+			if (!isPositionObstacle || !isDraggingBox)
+				_lastInputDirection = inputDirection; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		}
-		
-		// курсор перемещаем если нет припятствий или не тащим
-		if (!isPositionObstacle || !isBoxGrapping)
-			cursor.SetCursor(inputDirection);
+		if (!isPositionObstacle || !isDraggingBox)
+			cursorDirection = inputDirection;
 	}
 
+	private void MoveToDirection(Vector3 direction)
+	{
+		_isPlayAnimationMoving = true;
+		StartCoroutine(SmoothedMove(transform.position + direction));
+	}
+	
 	private IEnumerator SmoothedMove(Vector3 endPosition)
 	{
 		Vector3 startPosition = transform.position;
@@ -85,7 +80,7 @@ public class Movement : MonoBehaviour
 
 		transform.position = endPosition;
 
-		isMoving = false;
-		characterAnimation.SetToIdle();
+		_isPlayAnimationMoving = false;
+		characterAnimation.SetIdleAnimation();
 	}
 }
