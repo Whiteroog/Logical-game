@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
-public static class RaycastWatcher
+namespace ThisProject.Character
 {
-	public static bool IsTargetBox(Vector3 position, LayerMask targetBoxLayer, out GameObject box)
+	public static class RaycastWatcher
 	{
-		box = Physics2D.Raycast(position, Vector3.zero, Mathf.Infinity, targetBoxLayer).collider?.gameObject;
-		return box;
-	}
+		public static bool TryTakeTargetBox(Vector3 position, LayerMask targetBoxLayer, out Transform box)
+		{
+			box = Physics2D.Raycast(position, Vector3.zero, Mathf.Infinity, targetBoxLayer).transform;
+			return box != null;
+		}
 
-	public static bool IsPositionObstacle(Vector3 position, LayerMask obstacleLayers)
-	{
-		return Physics2D.Raycast(position, Vector3.zero, Mathf.Infinity, obstacleLayers);
+		public static bool IsPositionObstacle(Vector3 position, LayerMask obstacleLayers)
+		{
+			return Physics2D.Raycast(position, Vector3.zero, Mathf.Infinity, obstacleLayers).collider != null;
+		}
 	}
 }

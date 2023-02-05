@@ -1,56 +1,60 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.Events;
 using UnityEngine;
+using UnityEngine.Events;
 
-public class Character : MonoBehaviour
+namespace ThisProject.Character
 {
-	public Cursor cursor;
-	public Movement movement;
-
-	[HideInInspector]
-	public GameObject box;
-
-	public UnityEvent boxPutDown;
-	
-	public LayerMask targetBoxLayer;
-
-	public bool IsDraggingBox() => box != null;
-	
-	private Vector3 GetInputDirection() => new Vector3(Input.GetAxisRaw("Horizontal"),Input.GetAxisRaw("Vertical"));
-
-	void Update()
+	public class Character : MonoBehaviour
 	{
-		if (Input.anyKeyDown)
+		private Transform _cursor;
+		private Transform _box;
+	
+		private Movement _movement;
+
+		public LayerMask targetBoxLayer;
+		public UnityEvent boxPutDown;
+
+		public bool IsDraggingBox() => _box != null;
+	
+		private Vector3 GetInputDirection() => new Vector3(Input.GetAxisRaw("Horizontal"),Input.GetAxisRaw("Vertical"));
+
+		private void Start()
 		{
-			movement.Moving(GetInputDirection(), out Vector3 cursorDirection, IsDraggingBox());
+			_cursor = transform.GetChild(0);
+			_movement = GetComponent<Movement>();
+		}
 
-			cursor.SetCursor(cursorDirection);
-
-			if (Input.GetKeyDown(KeyCode.E))
+		void Update()
+		{
+			if (Input.anyKeyDown)
 			{
-				ActionToBox();
+				_movement.Moving(GetInputDirection(), out Vector3 cursorDirection, IsDraggingBox());
+				_cursor.localPosition = cursorDirection;
+
+				if (Input.GetKeyDown(KeyCode.E))
+				{
+					ActionToBox();
+				}
 			}
 		}
-	}
 
-	private void ActionToBox()
-	{
-		if (IsDraggingBox())
+		private void ActionToBox()
 		{
-			// to world
-			box.transform.SetParent(null, true);
-			box = null;
+			if (IsDraggingBox())
+			{
+				// to world
+				_box.SetParent(null);
+				_box = null;
 
-			boxPutDown.Invoke();
-		}
-		else
-		{
-			if (RaycastWatcher.IsTargetBox(cursor.transform.position, targetBoxLayer, out var foundBox))
-			{               
-				// to character
-				box = foundBox;
-				foundBox.transform.SetParent(cursor.transform);
+				boxPutDown.Invoke();
+			}
+			else
+			{
+				if (RaycastWatcher.TryTakeTargetBox(_cursor.position, targetBoxLayer, out Transform foundBox))
+				{               
+					// to character
+					_box = foundBox;
+					_box.SetParent(_cursor);
+				}
 			}
 		}
 	}

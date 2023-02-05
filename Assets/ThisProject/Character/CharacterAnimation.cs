@@ -1,28 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-public class CharacterAnimation : MonoBehaviour
+namespace ThisProject.Character
 {
-    public Animator animator;
-    private Vector3 _currentDirectAnim;
-
-    void Start()
+    public class CharacterAnimation : MonoBehaviour
     {
-        SetDirectAnimation(new Vector3(0.0f, -0.1f));
-    }
+        private Animator _animator;
 
-    public void SetDirectAnimation(Vector3 direct)
-	{
-        animator.SetFloat("X", direct.x);
-        animator.SetFloat("Y", direct.y);
+        void Start()
+        {
+            _animator = GetComponent<Animator>();
+        
+            SetDirectAnimation(new Vector3(0.0f, -0.1f));
+        }
 
-        _currentDirectAnim = direct;
-    }
+        public void SetDirectAnimation(Vector3 direct)
+        {
+            _animator.SetFloat("X", direct.x);
+            _animator.SetFloat("Y", direct.y);
+        }
 
-    public void SetIdleAnimation()
-	{
-        SetDirectAnimation(_currentDirectAnim / 10.0f);
+        public void SetIdleAnimation(Vector3 direct)
+        {
+            SetDirectAnimation(direct / 10.0f);
+        }
     }
 }
