@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ThisProject.OtherGameObject;
 using ThisProject.Scenes;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace ThisProject.Managers
 {
@@ -22,10 +23,7 @@ namespace ThisProject.Managers
 		private void Start()
 		{
 			SetDefaultStateConditions();
-			uiManager.SetupShowingConditions(levelCondition);
-
-			// boxesValue = new List<GameObject>(GameObject.FindGameObjectsWithTag("TargetObject"));
-			// pointKey = new List<GameObject>(GameObject.FindGameObjectsWithTag("TargetPoint"));
+			uiManager.SetupDataMenu(levelCondition);
 		}
 
 		private void Update()
@@ -45,7 +43,7 @@ namespace ThisProject.Managers
 				return;
 
 			UpdateStateConditions();
-			uiManager.UpdateShowingConditions(levelCondition);
+			uiManager.UpdateDataMenu(levelCondition);
 
 			_isActiveMenu = true;
 			SetActiveMenu(_isActiveMenu);
@@ -89,6 +87,11 @@ namespace ThisProject.Managers
 			{
 				condition.SetDefaultCondition();
 			}
+		}
+
+		public void RestartLevel()
+		{
+			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 		}
 	}
 }

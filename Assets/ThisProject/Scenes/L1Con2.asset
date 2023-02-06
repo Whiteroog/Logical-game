@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: L1Con2
   m_EditorClassIdentifier: Assembly-CSharp:ThisProject.Scenes:LevelCondition
-  defaultly: {fileID: 0}
+  defaultly: {fileID: 21300000, guid: 12445a2a472e6f849b3f356d0c613a49, type: 3}
   ifTrue: {fileID: 21300000, guid: 510ee6eefde26714382ebae7a14c9bc2, type: 3}
   ifFalse: {fileID: 21300000, guid: ee6dcc1c7781e4f4ab9f2aee63b8d8c3, type: 3}
   textCondition: Time elapsed less than 5
   targetValue: 5
   sign: 1
-  isCompleted: 0
+  score: 50

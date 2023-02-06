@@ -11,14 +11,21 @@ namespace ThisProject.Scenes
         Equal
     }
 
+    public enum StateCompletedTask
+	{
+        Processes,
+        Completed,
+        Failed
+	}
+
     static class Conditions
     {
-        public static bool GetResultOperation(Sign sign, float leftValue, float rightValue)
+        public static StateCompletedTask GetResultOperation(Sign sign, float leftValue, float rightValue)
             => sign switch
             {
-                Sign.Great => leftValue > rightValue,
-                Sign.Less => leftValue < rightValue,
-                Sign.Equal => leftValue == rightValue,
+                Sign.Great => leftValue > rightValue ? StateCompletedTask.Completed : StateCompletedTask.Failed,
+                Sign.Less => leftValue < rightValue ? StateCompletedTask.Completed : StateCompletedTask.Failed,
+                Sign.Equal => leftValue == rightValue ? StateCompletedTask.Completed : StateCompletedTask.Failed,
                 _ => throw new Exception("No such sign")
             };
     }
@@ -35,20 +42,30 @@ namespace ThisProject.Scenes
         public float targetValue;
         public Sign sign;
 
-        public bool isCompleted = false;
+        public int score;
+
+        private StateCompletedTask stateCompletedTask = StateCompletedTask.Processes;
 
         public ValueLevel getValueLevel = () => 0.0f;
 
         public void SetDefaultCondition()
         {
-            isCompleted = false;
+            stateCompletedTask = StateCompletedTask.Processes;
         }
         
         public void UpdateCondition()
         {
-            isCompleted = Conditions.GetResultOperation(sign, getValueLevel(), targetValue);
+            stateCompletedTask = Conditions.GetResultOperation(sign, getValueLevel(), targetValue);
         }
 
-        public Sprite GetSpriteOfCondition() => isCompleted ? ifTrue : ifFalse;
+        public Sprite GetSpriteOfCondition() => stateCompletedTask switch
+        {
+            StateCompletedTask.Processes => defaultly,
+            StateCompletedTask.Completed => ifTrue,
+            StateCompletedTask.Failed => ifFalse,
+            _ => throw new Exception("No such state")
+        };
+
+        public bool IsCompleted() => stateCompletedTask == StateCompletedTask.Completed;
     }
 }

@@ -11,14 +11,12 @@ namespace ThisProject.Managers
         public GameObject pauseMenu;
         public GameObject stopwatch;
 
-        public TMP_Text textCon1;
-        public Image imageCon1;
-        
-        public TMP_Text textCon2;
-        public Image imageCon2;
-        
-        public TMP_Text textCon3;
-        public Image imageCon3;
+        public TMP_Text scoreText;
+        public TMP_Text medalText;
+
+        public MedalHandle medalHandle;
+
+        public List<GameObject> uiConditions;
 
         private void Start()
         {
@@ -31,23 +29,32 @@ namespace ThisProject.Managers
             stopwatch.SetActive(!state);
         }
 
-        public void SetupShowingConditions(List<LevelCondition> levelCondition)
+        public void SetupDataMenu(List<LevelCondition> levelCondition)
         {
-            textCon1.text = levelCondition[0].textCondition;
-            imageCon1.sprite = levelCondition[0].defaultly;
-            
-            textCon2.text = levelCondition[1].textCondition;
-            imageCon2.sprite = levelCondition[1].defaultly;
-            
-            textCon3.text = levelCondition[2].textCondition;
-            imageCon3.sprite = levelCondition[2].defaultly;
+            scoreText.text = "0";
+
+            medalText.text = "";
+
+            for (int i = 0; i < levelCondition.Count; i++)
+			{
+                uiConditions[i].GetComponentInChildren<TMP_Text>().text = levelCondition[i].textCondition;
+                uiConditions[i].GetComponentInChildren<Image>().sprite = levelCondition[i].defaultly;
+            }
         }
 
-        public void UpdateShowingConditions(List<LevelCondition> levelCondition)
+        public void UpdateDataMenu(List<LevelCondition> levelCondition)
         {
-            imageCon1.sprite = levelCondition[0].GetSpriteOfCondition();
-            imageCon2.sprite = levelCondition[1].GetSpriteOfCondition();
-            imageCon3.sprite = levelCondition[2].GetSpriteOfCondition();
+            scoreText.text = Score.GetTotalScore(levelCondition).ToString();
+
+            Medal medal = medalHandle.GetMedalForCondition(levelCondition);
+
+            medalText.text = medal.placeText;
+            medalText.color = medal.colorPlace;
+
+            for (int i = 0; i < levelCondition.Count; i++)
+            {
+                uiConditions[i].GetComponentInChildren<Image>().sprite = levelCondition[i].GetSpriteOfCondition();
+            }
         }
     }
 }

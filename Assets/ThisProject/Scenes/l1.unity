@@ -3536,7 +3536,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: The box in target place
+  m_text: fghfghfghfghf
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b2f9df2edcef8345834fc7a4996a891, type: 2}
   m_sharedMaterial: {fileID: 4678632608535601207, guid: 5b2f9df2edcef8345834fc7a4996a891, type: 2}
@@ -3778,7 +3778,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 660799043}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1486478220}
+        m_TargetAssemblyTypeName: ThisProject.Managers.GameManager, Assembly-CSharp
+        m_MethodName: RestartLevel
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &660799043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4943,6 +4955,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1486478221}
   - component: {fileID: 1486478220}
+  - component: {fileID: 1486478224}
   - component: {fileID: 1486478219}
   - component: {fileID: 1486478222}
   - component: {fileID: 1486478223}
@@ -4967,12 +4980,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pauseMenu: {fileID: 728351837}
   stopwatch: {fileID: 308202547}
-  textCon1: {fileID: 437901143}
-  imageCon1: {fileID: 428271975}
-  textCon2: {fileID: 805369088}
-  imageCon2: {fileID: 224773717}
-  textCon3: {fileID: 1428876754}
-  imageCon3: {fileID: 424769732}
+  scoreText: {fileID: 964338967}
+  medalText: {fileID: 1404561452}
+  medalHandle: {fileID: 1486478224}
+  uiConditions:
+  - {fileID: 671744917}
+  - {fileID: 53940815}
+  - {fileID: 843093629}
 --- !u!114 &1486478220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5056,6 +5070,22 @@ MonoBehaviour:
   gameManager: {fileID: 1486478220}
   stopwatch: {fileID: 1486478222}
   movement: {fileID: 1146926701}
+--- !u!114 &1486478224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486478218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 390f79ce223a7454293ee3fcf218e015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  medals:
+  - {fileID: 11400000, guid: 0fd291e4d12165841b536eb21e5227d3, type: 2}
+  - {fileID: 11400000, guid: 73fee08b62d93c74ca87c983932927dd, type: 2}
+  - {fileID: 11400000, guid: a4375613b350a564cbfcedea362e60b4, type: 2}
 --- !u!1 &1621087930
 GameObject:
   m_ObjectHideFlags: 0
