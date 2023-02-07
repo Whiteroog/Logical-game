@@ -1,7 +1,11 @@
 using System.Collections.Generic;
+using ThisProject.Medals;
+using ThisProject.Medals.SO;
 using ThisProject.Scenes;
+using ThisProject.Scenes.Conditions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ThisProject.Managers
@@ -14,12 +18,20 @@ namespace ThisProject.Managers
         public TMP_Text scoreText;
         public TMP_Text medalText;
 
-        public MedalHandle medalHandle;
+        public MedalHandler medalHandler;
 
-        public List<GameObject> uiConditions;
+        public Transform conditionsGameObject;
+        private List<Transform> _listConditions;
 
         private void Start()
         {
+            _listConditions = new List<Transform>(conditionsGameObject.childCount);
+
+            for (int i = 0; i < conditionsGameObject.childCount; i++)
+            {
+                _listConditions.Add(conditionsGameObject.GetChild(i));
+            }
+            
             SetActiveUI(false);
         }
 
@@ -29,31 +41,30 @@ namespace ThisProject.Managers
             stopwatch.SetActive(!state);
         }
 
-        public void SetupDataMenu(List<LevelCondition> levelCondition)
+        public void SetupDataMenu(List<LevelConditionSO> levelCondition)
         {
             scoreText.text = "0";
-
             medalText.text = "";
 
             for (int i = 0; i < levelCondition.Count; i++)
 			{
-                uiConditions[i].GetComponentInChildren<TMP_Text>().text = levelCondition[i].textCondition;
-                uiConditions[i].GetComponentInChildren<Image>().sprite = levelCondition[i].defaultly;
+                _listConditions[i].GetComponentInChildren<TMP_Text>().text = levelCondition[i].textCondition;
+                _listConditions[i].GetComponentInChildren<Image>().sprite = levelCondition[i].starterSprite;
             }
         }
 
-        public void UpdateDataMenu(List<LevelCondition> levelCondition)
+        public void UpdateDataMenu(List<LevelConditionSO> levelCondition)
         {
             scoreText.text = Score.GetTotalScore(levelCondition).ToString();
 
-            Medal medal = medalHandle.GetMedalForCondition(levelCondition);
+            MedalSO medal = medalHandler.GetMedal(levelCondition);
 
             medalText.text = medal.placeText;
             medalText.color = medal.colorPlace;
 
             for (int i = 0; i < levelCondition.Count; i++)
             {
-                uiConditions[i].GetComponentInChildren<Image>().sprite = levelCondition[i].GetSpriteOfCondition();
+                _listConditions[i].GetComponentInChildren<Image>().sprite = levelCondition[i].GetSpriteOfCondition();
             }
         }
     }

@@ -13,6 +13,10 @@ namespace ThisProject.Character
 		public LayerMask targetBoxLayer;
 		public UnityEvent boxPutDown;
 
+		public bool _isPlayingAnimation = false;
+
+		public void SetIsPlayingAnimation(bool state) => _isPlayingAnimation = state;
+
 		public bool IsDraggingBox() => _box != null;
 	
 		private Vector3 GetInputDirection() => new Vector3(Input.GetAxisRaw("Horizontal"),Input.GetAxisRaw("Vertical"));
@@ -21,14 +25,14 @@ namespace ThisProject.Character
 		{
 			_cursor = transform.GetChild(0);
 			_movement = GetComponent<Movement>();
+			_movement.isPlayingAnimationMovement += SetIsPlayingAnimation;
 		}
 
 		void Update()
 		{
-			if (Input.anyKeyDown)
+			if (Input.anyKeyDown && !_isPlayingAnimation)
 			{
-				_movement.Moving(GetInputDirection(), out Vector3 cursorDirection, IsDraggingBox());
-				_cursor.localPosition = cursorDirection;
+				_movement.Moving(GetInputDirection(), IsDraggingBox());
 
 				if (Input.GetKeyDown(KeyCode.E))
 				{

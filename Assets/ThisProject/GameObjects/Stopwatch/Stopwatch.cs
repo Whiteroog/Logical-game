@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace ThisProject.OtherGameObject
+namespace ThisProject.GameObjects.Stopwatch
 {
     public class Stopwatch : MonoBehaviour
     {
@@ -10,7 +10,7 @@ namespace ThisProject.OtherGameObject
 
         public bool ActiveStopwatch { set; get; }  = true;
     
-        public float _seconds = 0;
+        private float _seconds = 0;
         
         public float GetSeconds() => _seconds;
 

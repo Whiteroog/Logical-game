@@ -1,19 +1,21 @@
-using System.Collections;
 using System.Collections.Generic;
 using ThisProject.Scenes;
-using UnityEngine;
+using ThisProject.Scenes.Conditions;
 
-public static class Score
+namespace ThisProject.Managers
 {
-	public static int GetTotalScore(List<LevelCondition> levelCondition)
+	public static class Score
 	{
-		int totalScore = 0;
-
-		foreach(var condition in levelCondition)
+		public static int GetTotalScore(List<LevelConditionSO> levelCondition)
 		{
-			totalScore += condition.IsCompleted() ? condition.score : 0;
-		}
+			int totalScore = 0;
 
-		return totalScore;
+			foreach(var condition in levelCondition)
+			{
+				totalScore += condition.IsCompleted() ? condition.score : 0;
+			}
+
+			return totalScore;
+		}
 	}
 }
