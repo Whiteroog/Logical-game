@@ -11,7 +11,8 @@ namespace ThisProject.Character
 		
 		[CanBeNull] private CharacterAnimation _characterAnimation;
 	
-		public float speed = 2f;
+		public float speed = 2.0f;
+		public float rotateSpeed = 2.0f;
 		public LayerMask obstacleLayers;
 
 		private Vector3 _lastInputDirection = Vector3.right;
@@ -54,16 +55,15 @@ namespace ThisProject.Character
 
 			if (!isPositionObstacle && IsSameDirection(inputDirection))
 			{
-				MoveToDirection(inputDirection);
 				_characterAnimation?.SetDirectAnimation(inputDirection);
+				MoveToDirection(inputDirection);
 			}
 			else
 			{
 				if (boxIsNotOnObstacle)
 				{
-					_cursor.localPosition = inputDirection;
 					_lastInputDirection = inputDirection;
-					_characterAnimation?.SetIdleAnimation(inputDirection);
+					RotateToDirection(inputDirection);
 				}
 			}
 		}
@@ -74,6 +74,12 @@ namespace ThisProject.Character
 			isPlayingAnimationMovement.Invoke(true);
 			StartCoroutine(SmoothedMove(transform.position + direction));
 		}
+
+		private void RotateToDirection(Vector3 direction)
+		{
+			isPlayingAnimationMovement.Invoke(true);
+			StartCoroutine(SmoothedRotation(direction));
+		}
 	
 		private IEnumerator SmoothedMove(Vector3 endPosition)
 		{
@@ -81,15 +87,37 @@ namespace ThisProject.Character
 
 			Vector3 direction = endPosition - startPosition;
 
-			for (float timeElapsed = 0; timeElapsed < 1.0f; timeElapsed += Time.deltaTime * speed)
+			for (float lerpStep = 0; lerpStep < 1.0f; lerpStep += Time.deltaTime * speed)
 			{
-				float lerpStep = timeElapsed / 1.0f;
 				transform.position = Vector3.Lerp(startPosition, endPosition, lerpStep);
 				yield return null;
 			}
 
 			transform.position = endPosition;
 			_characterAnimation?.SetIdleAnimation(direction.normalized);
+			isPlayingAnimationMovement.Invoke(false);
+		}
+
+		private IEnumerator SmoothedRotation(Vector3 inputDirection)
+		{
+			Vector3 currentDirection = _cursor.localPosition;
+
+			float roundK = 1.0f;
+
+			for (float lerpStep = 0; lerpStep < 1.0f; lerpStep += Time.deltaTime * rotateSpeed)
+			{
+				float powerRounding = Time.deltaTime * rotateSpeed;
+				roundK += lerpStep < 0.5f ? powerRounding : -powerRounding;
+
+				Vector3 lerpCalc = Vector3.Lerp(currentDirection, inputDirection, lerpStep);
+				_cursor.localPosition = lerpCalc * roundK;
+
+				_characterAnimation?.SetIdleAnimation(lerpCalc);
+
+				yield return null;
+			}
+
+			_cursor.localPosition = inputDirection;
 			isPlayingAnimationMovement.Invoke(false);
 		}
 	}
